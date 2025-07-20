@@ -3,9 +3,9 @@ name: Destroy
 on:
   workflow_dispatch:
     inputs:
-      environmnent:
-        description: "Environment to destroy (staging or prod)"
+      environment:
         type: choice
+        description: Which environment to remove AWS resources for?
         options:
           - staging
           - prod
