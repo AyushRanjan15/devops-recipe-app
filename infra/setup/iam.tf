@@ -127,6 +127,7 @@ data "aws_iam_policy_document" "ec2" {
       "ec2:DescribeSubnets",
       "ec2:DescribeVpcAttribute",
       "ec2:DescribeNetworkAcls",
+      "ec2:DescribeAvailabilityZones",
       "ec2:AssociateRouteTable",
       "ec2:AuthorizeSecurityGroupIngress",
       "ec2:RevokeSecurityGroupEgress",
@@ -141,7 +142,6 @@ data "aws_iam_policy_document" "ec2" {
       "ec2:AttachInternetGateway",
       "ec2:ModifyVpcAttribute",
       "ec2:RevokeSecurityGroupIngress",
-      "ec2:DescribeAvailabilityZones"
     ]
     resources = ["*"]
   }
@@ -164,6 +164,25 @@ resource "aws_iam_user_policy_attachment" "ec2" {
 #########################
 # Policy for RDS access #
 #########################
+
+data "aws_iam_policy_document" "service_linked_role" {
+  statement {
+    effect    = "Allow"
+    actions   = ["iam:CreateServiceLinkedRole"]
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_policy" "service_linked_role" {
+  name        = "${aws_iam_user.cd.name}-service-linked-role"
+  description = "Allow user to create service-linked roles"
+  policy      = data.aws_iam_policy_document.service_linked_role.json
+}
+
+resource "aws_iam_user_policy_attachment" "service_linked_role" {
+  user       = aws_iam_user.cd.name
+  policy_arn = aws_iam_policy.service_linked_role.arn
+}
 
 data "aws_iam_policy_document" "rds" {
   statement {
